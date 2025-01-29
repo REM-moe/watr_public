@@ -25,7 +25,7 @@
 ### 1️⃣ **Install the App**  
 1. Clone the repository:  
    ```bash
-   git clone https://github.com/your_username/watr.git
+   git clone https://github.com/REM-moe/watr_public.git
    cd watr
    ```
 2. Install dependencies:  
@@ -70,6 +70,10 @@ Configure Gemini with your API key.
 ✅ Expand the **home page widgets** for more customization.  
 ✅ Improve the hydration form design with emoji-friendly sliders.  
 
----
+# 📱 Screenshots  
+![app (1)](https://github.com/user-attachments/assets/a8e2554d-e33e-415e-8326-a525117fcb75)
+
+
+
 
 Let me know if you want more additions, animations, or tweaks! 😊
