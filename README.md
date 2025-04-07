@@ -66,9 +66,9 @@ Configure Gemini with your API key.
 ---
 
 ## 🌟 **What’s Next?**  
-✅ Finish IoT pairing.  
-✅ Expand the **home page widgets** for more customization.  
-✅ Improve the hydration form design with emoji-friendly sliders.  
+✅ Sadly its time to stop working on this and move on.
+✅ There are many bugs in the app ( in the graph page and with the shared preferences)
+
 
 # 📱 Screenshots  
 ![app (1)](https://github.com/user-attachments/assets/a8e2554d-e33e-415e-8326-a525117fcb75)
