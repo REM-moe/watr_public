@@ -1,5 +1,6 @@
 // lib/src/routes.dart
 import 'package:get/get_navigation/src/routes/get_route.dart';
+import 'package:watr/screens/bottle_config/bottle_config_page.dart';
 import 'package:watr/screens/form/first_form_page.dart';
 import 'package:watr/screens/graphs/statistics_page.dart';
 import 'package:watr/screens/home_page/home_page.dart';
@@ -16,6 +17,7 @@ class Routes {
   static const String form = '/form';
   static const String graph = '/graph';
   static const String user = '/user';
+  static const String bottle = '/bottle';
 }
 
 final getPages = [
@@ -40,7 +42,6 @@ final getPages = [
     page: () => const FirstFormPage(),
     // Unauthorized page for non-authenticated users
   ),
-
   GetPage(
     name: Routes.graph,
     page: () => const StatisticsPage(),
@@ -51,10 +52,9 @@ final getPages = [
     page: () => UserPage(),
     // Unauthorized page for non-authenticated users
   ),
-
-  // GetPage(
-  //   name: Routes.userPage,
-  //   page: () => const FaqPage(),
-  //   // Unauthorized page for non-authenticated users
-  // ),
+  GetPage(
+    name: Routes.bottle,
+    page: () => const BottleConfigPage(),
+    // Unauthorized page for non-authenticated users
+  ),
 ];

@@ -10,12 +10,29 @@ class HydrationController extends GetxController {
   final RxMap<String, List<Map<String, dynamic>>> dayDetails =
       <String, List<Map<String, dynamic>>>{}.obs;
 
+  // Track if we're currently loading data
+  final RxBool isLoading = false.obs;
+
   @override
   void onInit() {
     super.onInit();
     // Set initial selected day to current weekday
     final today = _weekdayToKey(DateTime.now().weekday);
     selectedDay.value = today;
+
+    // Initial data fetch
+    fetchAllData();
+
+    // Listen for page visits to refresh data
+    ever(_authController.user, (_) {
+      if (_authController.user.value != null) {
+        fetchAllData();
+      }
+    });
+  }
+
+  // Called when the page is revisited
+  void onPageVisit() {
     fetchAllData();
   }
 
@@ -25,15 +42,17 @@ class HydrationController extends GetxController {
   }
 
   Future<void> fetchAllData() async {
-    try {
-      final userId = _authController.user.value?.id;
-      if (userId == null) return;
+    if (isLoading.value) return; // Prevent multiple simultaneous fetches
 
-      final response = await _supabase.client
-          .from('intakes')
-          .select()
-          .eq('user_id', userId)
-          .order('created_at'); // Fetch all data without filtering by date
+    try {
+      isLoading.value = true;
+
+      final userId = _authController.user.value?.id;
+      if (userId == null) {
+        // Clear data if user is not logged in
+        dayDetails.clear();
+        return;
+      }
 
       // Initialize empty lists for each day
       final Map<String, List<Map<String, dynamic>>> weekData = {
@@ -45,6 +64,13 @@ class HydrationController extends GetxController {
         'sa': [],
         'su': []
       };
+
+      // Fetch all intake data without date filtering
+      final response = await _supabase.client
+          .from('intakes')
+          .select()
+          .eq('user_id', userId)
+          .order('created_at');
 
       // Process each entry and group by day
       for (var entry in response) {
@@ -63,6 +89,18 @@ class HydrationController extends GetxController {
       processDayData(weekData);
     } catch (e) {
       print('Error fetching data: $e');
+      // Initialize with empty data on error
+      dayDetails.value = {
+        'mo': [],
+        'tu': [],
+        'we': [],
+        'th': [],
+        'fr': [],
+        'sa': [],
+        'su': []
+      };
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -104,14 +142,29 @@ class HydrationController extends GetxController {
     dayDetails.refresh();
   }
 
-  void setSelectedDay(String day) async {
+  void setSelectedDay(String day) {
     if (selectedDay.value != day) {
       selectedDay.value = day;
-      // Ensure we have data for the selected day
-      if (dayDetails[day]?.isEmpty ?? true) {
-        await fetchAllData(); // Fetch again if necessary
-      }
+      // No need to fetch data again - we already have all days
       dayDetails.refresh();
     }
+  }
+
+  // Helper method to get total intake for a specific day
+  double getDayTotal(String day) {
+    if (dayDetails[day] == null || dayDetails[day]!.isEmpty) {
+      return 0.0;
+    }
+
+    double total = 0.0;
+    for (var entry in dayDetails[day]!) {
+      total += entry['amount'] ?? 0.0;
+    }
+    return total;
+  }
+
+  // Check if we have any data across all days
+  bool hasAnyData() {
+    return dayDetails.values.any((entries) => entries.isNotEmpty);
   }
 }

@@ -22,7 +22,6 @@ class WaterPlanController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    log("Initializing WaterPlanController...");
 
     _geminiFunctions.addAll([
       generateReminderPlan,
@@ -31,8 +30,7 @@ class WaterPlanController extends GetxController {
 
     fetchUserData();
 
-    _insightTimer = Timer.periodic(const Duration(seconds: 20), (timer) {
-      log("🔄 Running a new insight generation cycle...");
+    _insightTimer = Timer.periodic(const Duration(seconds: 50), (timer) {
       updateRandomContent();
     });
   }
@@ -44,10 +42,8 @@ class WaterPlanController extends GetxController {
   }
 
   Future<void> fetchUserData() async {
-    log("Fetching user data...");
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) {
-      log("No user ID found.");
       return;
     }
 
@@ -58,12 +54,10 @@ class WaterPlanController extends GetxController {
       if (planResponse != null) {
         dailyGoal.value = planResponse['daily_water_goal'].toString();
         perSip.value = planResponse['amount_per_serving'].toString();
-        log("User data fetched successfully: dailyGoal=${dailyGoal.value}, perSip=${perSip.value}");
       }
 
       await fetchWeeklyDrinkHistory();
     } catch (e) {
-      log("Error fetching user data: $e");
       // Set default values if there's an error
       dailyGoal.value = '2000';
       perSip.value = '250';
@@ -71,10 +65,8 @@ class WaterPlanController extends GetxController {
   }
 
   Future<void> fetchWeeklyDrinkHistory() async {
-    log("Fetching weekly drink history...");
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) {
-      log("No user ID found.");
       return;
     }
 
@@ -93,11 +85,9 @@ class WaterPlanController extends GetxController {
           List<Map<String, dynamic>>.from(historyResponse);
 
       if (weeklyDrinkHistory.isEmpty) {
-        log("No intake data found.");
         // No need to fetch fallback plan since we already have defaults
         updateRandomContent();
       } else {
-        log("Weekly drink history fetched successfully. Records: ${weeklyDrinkHistory.length}");
         updateRandomContent();
       }
     } catch (e) {
@@ -108,7 +98,6 @@ class WaterPlanController extends GetxController {
   }
 
   Future<void> fetchFallbackPlan() async {
-    log("Fetching fallback water plan...");
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) return;
 
@@ -122,7 +111,6 @@ class WaterPlanController extends GetxController {
       if (planResponse.isNotEmpty) {
         dailyGoal.value = planResponse['daily_water_goal'] ?? '2000';
         perSip.value = planResponse['amount_per_serving'] ?? '250';
-        log("Fallback data applied: dailyGoal=${dailyGoal.value}, perSip=${perSip.value}");
       } else {
         log("No fallback plan found.");
       }
@@ -156,15 +144,12 @@ class WaterPlanController extends GetxController {
       final response = await _gemini.prompt(parts: [Part.text(prompt)]);
       reminderPlan.value = response?.output ?? "Stay hydrated regularly!";
       displayContent.value = reminderPlan.value;
-      log("Reminder plan generated successfully: ${reminderPlan.value}");
     } catch (e) {
       log("Gemini Error (Reminder Plan): $e");
     }
   }
 
   Future<void> assignDrinkingPersonality() async {
-    log("Assigning hydration personality...");
-
     String prompt;
     if (weeklyDrinkHistory.isEmpty) {
       prompt = """
@@ -190,7 +175,6 @@ class WaterPlanController extends GetxController {
       personality.value =
           response?.output ?? "You're as hydrated as a dolphin!";
       displayContent.value = personality.value;
-      log("Personality assigned successfully: ${personality.value}");
     } catch (e) {
       log("Gemini Error (Personality): $e");
     }

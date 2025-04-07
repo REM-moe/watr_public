@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:watr/controllers/water_pan_controller.dart';
+import 'package:watr/controllers/water_plan_controller.dart';
 import 'package:watr/utils/themes/text_themes.dart';
 
 class GeminiWidget extends StatelessWidget {

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:watr/components/blur/fliter.dart';
 import 'package:watr/components/gemini/gemini_widget.dart';
+import 'package:watr/controllers/amount_consumed_controller.dart';
 import 'package:watr/controllers/auth_controller.dart';
 
 class HomeScreen extends GetView<AuthController> {
@@ -12,6 +13,7 @@ class HomeScreen extends GetView<AuthController> {
   Widget build(BuildContext context) {
     DateTime now = DateTime.now();
     String formattedDate = DateFormat(' EEE d MMM').format(now);
+    final WaterController waterController = Get.put(WaterController());
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -67,17 +69,20 @@ class HomeScreen extends GetView<AuthController> {
                       ),
                     ),
                     const SizedBox(height: 80),
-                    const Center(
-                      child: Text("12",
-                          style: TextStyle(
+                    Center(
+                      child: Obx(() => Text(
+                            waterController.totalConsumed.value.toString(),
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 43,
-                              fontWeight: FontWeight.bold)),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )),
                     ),
 
                     const Center(
                       child: Text(
-                        "gulps to go",
+                        "ml consumed",
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w500,
@@ -127,13 +132,13 @@ class HomeScreen extends GetView<AuthController> {
                           },
                           child: Row(
                             children: [
-                              Image.asset('assets/charge.png', scale: 9),
+                              Image.asset('assets/gym.png', scale: 9),
                               const SizedBox(width: 5),
                               const Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    '29%',
+                                    'plan',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w300,
@@ -141,7 +146,7 @@ class HomeScreen extends GetView<AuthController> {
                                   ),
                                   SizedBox(height: 3),
                                   Text(
-                                    'Charge Left',
+                                    'Change Plan',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700,
@@ -153,31 +158,36 @@ class HomeScreen extends GetView<AuthController> {
                           ),
                         ),
                         // Gym hi
-                        Row(
-                          children: [
-                            Image.asset('assets/gym.png', scale: 8),
-                            const SizedBox(width: 5),
-                            const Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'reminder',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w300,
+                        GestureDetector(
+                          onTap: () {
+                            Get.toNamed('/bottle');
+                          },
+                          child: Row(
+                            children: [
+                              Image.asset('assets/charge.png', scale: 8),
+                              const SizedBox(width: 5),
+                              const Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'config bottle',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w300,
+                                    ),
                                   ),
-                                ),
-                                SizedBox(height: 3),
-                                Text(
-                                  'next gulp: 3 mins',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700,
+                                  SizedBox(height: 3),
+                                  Text(
+                                    'configure weight',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            )
-                          ],
+                                ],
+                              )
+                            ],
+                          ),
                         ),
                       ],
                     ),

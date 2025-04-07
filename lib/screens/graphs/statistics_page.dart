@@ -7,14 +7,53 @@ import 'package:watr/controllers/auth_controller.dart';
 import 'package:watr/controllers/graph_controller.dart';
 import 'package:watr/utils/themes/text_themes.dart';
 
-class StatisticsPage extends StatelessWidget {
+class StatisticsPage extends StatefulWidget {
+  // Changed to StatefulWidget
   const StatisticsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Initialize the controller
-    final controller = Get.put(HydrationController());
+  State<StatisticsPage> createState() => _StatisticsPageState();
+}
 
+class _StatisticsPageState extends State<StatisticsPage>
+    with WidgetsBindingObserver {
+  late final HydrationController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    // Try to find existing controller or create a new one if it doesn't exist
+    if (Get.isRegistered<HydrationController>()) {
+      controller = Get.find<HydrationController>();
+    } else {
+      controller = Get.put(HydrationController());
+    }
+
+    // Register for lifecycle events
+    WidgetsBinding.instance.addObserver(this);
+
+    // Initial refresh
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.onPageVisit();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Refresh data when the app resumes
+    if (state == AppLifecycleState.resumed) {
+      controller.onPageVisit();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -66,17 +105,14 @@ class StatisticsPage extends StatelessWidget {
                       final dayData = controller.dayDetails[selectedDay];
 
                       // Show loading state if data is being fetched
-                      if (dayData == null) {
+                      if (dayData == null || controller.isLoading.value) {
                         return const Center(
                           child: CircularProgressIndicator(),
                         );
                       }
 
-                      // Show empty state if no data is available for the week
-                      final hasAnyData = controller.dayDetails.values
-                          .any((dayEntries) => dayEntries.isNotEmpty);
-
-                      if (!hasAnyData) {
+                      // Show empty state if no data is available at all
+                      if (!controller.hasAnyData()) {
                         return Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -88,7 +124,7 @@ class StatisticsPage extends StatelessWidget {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                'No hydration data recorded this week',
+                                'No hydration data recorded',
                                 style: TextStyle(
                                   color: Colors.white.withOpacity(0.7),
                                   fontSize: 16,
